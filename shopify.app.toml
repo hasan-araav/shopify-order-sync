@@ -1,0 +1,32 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "5a76a6321122b6651d99c6dc88e5b489"
+name = "order-sync-app-ts"
+handle = "order-sync-app-ts"
+application_url = "https://along-available-accessory-crew.trycloudflare.com"
+embedded = true
+
+[build]
+include_config_on_deploy = true
+automatically_update_urls_on_dev = true
+
+[webhooks]
+api_version = "2025-04"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_products"
+
+[auth]
+redirect_urls = ["https://along-available-accessory-crew.trycloudflare.com/auth/callback", "https://along-available-accessory-crew.trycloudflare.com/auth/shopify/callback", "https://along-available-accessory-crew.trycloudflare.com/api/auth/callback"]
+
+[pos]
+embedded = false
