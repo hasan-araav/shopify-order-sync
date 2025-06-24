@@ -9,8 +9,8 @@ generator client {
 // enough when changing adapters.
 // See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
 datasource db {
-  provider = "sqlite"
-  url      = "file:dev.sqlite"
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model Session {
@@ -29,4 +29,129 @@ model Session {
   locale        String?
   collaborator  Boolean?  @default(false)
   emailVerified Boolean?  @default(false)
+}
+model Order {
+  id                    String       @id
+  shopifyOrderId        String       @unique
+  orderNumber           Int
+  email                 String?
+  phone                 String?
+  name                  String?
+  totalPrice            Decimal      @db.Decimal(10, 2)
+  subtotalPrice         Decimal?     @db.Decimal(10, 2)
+  totalTax              Decimal?     @db.Decimal(10, 2)
+  totalDiscounts        Decimal?     @db.Decimal(10, 2)
+  currency              String
+  financialStatus       String?
+  fulfillmentStatus     String?
+  tags                  String?
+  note                  String?      @db.Text
+  processedAt           DateTime?
+  createdAt             DateTime
+  updatedAt             DateTime
+  cancelledAt           DateTime?
+  closedAt              DateTime?
+  test                  Boolean      @default(false)
+  shop                  String
+
+  // Relationships
+  customer              Customer?    @relation(fields: [customerId], references: [id])
+  customerId            String?
+  lineItems             LineItem[]
+  shippingAddress       Address?     @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
+  shippingAddressId     String?
+  billingAddress        Address?     @relation("BillingAddress", fields: [billingAddressId], references: [id])
+  billingAddressId      String?
+
+  @@map("orders")
+}
+
+model Customer {
+  id                    String    @id
+  shopifyCustomerId     String    @unique
+  email                 String?
+  phone                 String?
+  firstName             String?
+  lastName              String?
+  ordersCount           Int       @default(0)
+  totalSpent            Decimal   @default(0) @db.Decimal(10, 2)
+  tags                  String?
+  note                  String?   @db.Text
+  verifiedEmail         Boolean   @default(false)
+  taxExempt             Boolean   @default(false)
+  createdAt             DateTime
+  updatedAt             DateTime
+  shop                  String
+
+  // Relationships
+  orders                Order[]
+  addresses             Address[]
+
+  @@map("customers")
+}
+
+model LineItem {
+  id                    String    @id @default(cuid())
+  shopifyLineItemId     String    @unique
+  productId             String?
+  variantId             String?
+  title                 String
+  variantTitle          String?
+  sku                   String?
+  vendor                String?
+  quantity              Int
+  price                 Decimal   @db.Decimal(10, 2)
+  totalDiscount         Decimal?  @db.Decimal(10, 2)
+  taxable               Boolean   @default(false)
+  requiresShipping      Boolean   @default(false)
+  fulfillmentService    String?
+  fulfillmentStatus     String?
+  grams                 Int?
+
+  // Relationships
+  order                 Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId               String
+
+  @@map("line_items")
+}
+
+model Address {
+  id                    String    @id @default(cuid())
+  firstName             String?
+  lastName              String?
+  company               String?
+  address1              String?
+  address2              String?
+  city                  String?
+  province              String?
+  country               String?
+  zip                   String?
+  phone                 String?
+  name                  String?
+  provinceCode          String?
+  countryCode           String?
+  latitude              Float?
+  longitude             Float?
+
+  // Relationships
+  customer              Customer? @relation(fields: [customerId], references: [id])
+  customerId            String?
+  shippingOrders        Order[]   @relation("ShippingAddress")
+  billingOrders         Order[]   @relation("BillingAddress")
+
+  @@map("addresses")
+}
+
+model WebhookLog {
+  id                    String    @id @default(cuid())
+  topic                 String
+  shopDomain            String
+  orderId               String?
+  processed             Boolean   @default(false)
+  error                 String?   @db.Text
+  payload               String    @db.LongText
+  createdAt             DateTime  @default(now())
+  processedAt           DateTime?
+
+  @@map("webhook_logs")
 }

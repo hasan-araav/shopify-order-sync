@@ -1,0 +1,23 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "c0c27ce9981fa98f6e7ee8b186623c72"
+name = "order-sync-app-ts"
+handle = "order-sync-app-ts-1"
+application_url = "https://remedy-immunology-jewellery-fl.trycloudflare.com"
+embedded = true
+
+[build]
+include_config_on_deploy = true
+
+[webhooks]
+api_version = "2025-04"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_orders,write_orders,write_products"
+
+[auth]
+redirect_urls = ["https://remedy-immunology-jewellery-fl.trycloudflare.com/auth/callback", "https://remedy-immunology-jewellery-fl.trycloudflare.com/auth/shopify/callback", "https://remedy-immunology-jewellery-fl.trycloudflare.com/api/auth/callback"]
+
+[pos]
+embedded = false
